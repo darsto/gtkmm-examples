@@ -11,6 +11,7 @@
 #include <gtkmm/builder.h>
 #include <glibmm/dispatcher.h>
 #include "ConcurrentQueue.h"
+#include "windows/RAIIWindow.h"
 
 class Core;
 class SPacket;
@@ -79,6 +80,25 @@ public:
      * @return regular exit status
      */
     int run();
+
+    /**
+     * Create a RAIIWindow of given type.
+     * @tparam T type of window to create. It must inherit from RAIIWindow
+     * @tparam Args arguments to forward to T constructor
+     * @param args arguments to forward to T constructor
+     * @return reference to just created window
+     */
+    template<class T, typename ...Args>
+    T &createWindow(Args &&...args) {
+        static_assert(std::is_base_of<RAIIWindow, T>::value, "Window to create must be of type RAIIWindow");
+
+        std::unique_ptr<T> window = std::make_unique<T>(std::forward<Args>(args)...);
+        registerWindow(*window);
+
+        auto &ret = *window;
+        m_windows.push_back(std::move(window));
+        return ret;
+    }
     
     /**
      * (!) If you wish to stop the Application, please use Core::stop().
@@ -97,13 +117,16 @@ public:
     ~Application();
 
 private:
+    void registerWindow(RAIIWindow &windowPtr);
+    
+private:
     std::vector<std::string> m_customArgs;
     Glib::RefPtr<Gtk::Application> m_app;
     Glib::Dispatcher m_dispatcher;
     ConcurrentQueue<std::unique_ptr<SPacket>, 1000> m_packetsQueue;
     std::function<void(std::unique_ptr<QPacket>)> m_sendMessageFunc;
     bool m_acceptMessages = true;
-    Glib::RefPtr<Gtk::Builder> m_builder;
+    std::vector<std::unique_ptr<RAIIWindow>> m_windows;
 };
 
 #endif //VEE_APPLICATION_H

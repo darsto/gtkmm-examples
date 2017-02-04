@@ -12,6 +12,7 @@
 #include "Application.h"
 #include "thread/Core.h"
 #include "thread/packet/Packets.h"
+#include "windows/main/MainWindow.h"
 
 Application::Application(int argc, char **argv) {
     try {
@@ -32,7 +33,6 @@ Application::Application(int argc, char **argv) {
         }
 
         m_app = Gtk::Application::create(argc, argv, "io.github.darsto.vee");
-        m_builder = Gtk::Builder::create_from_file("../data/main.ui");
 
         m_dispatcher.connect([this]() {
             handleMessages();
@@ -85,9 +85,8 @@ int Application::run() {
     try {
         if (!m_app) throw std::runtime_error("Window has not been initialized properly. (Invalid arguments ?)");
 
-        m_builder->get_widget("mainWindow", window);
-
-        ret = m_app->run(*window);
+        auto &window = createWindow<MainWindow>(*this);
+        ret = m_app->run(*window.get());
     } catch (const Glib::Exception &ex) {
         ret = 1;
         showErrorWindow(ex.what());
@@ -136,6 +135,23 @@ void Application::showErrorWindow(const std::string &errMessage) {
 
     errorWindow->show_all();
     m_app->run(*errorWindow);
+}
+
+void Application::registerWindow(RAIIWindow &window) {
+    window->signal_show().connect([this]() {
+        m_app->hold();
+    });
+
+    window->signal_hide().connect([this]() {
+        m_app->release();
+    });
+
+    window->signal_delete_event().connect([this, &window](GdkEventAny *event) {
+        m_windows.erase(std::find_if(m_windows.begin(), m_windows.end(), [&window](auto &&it) {
+            return it->get() == window.get();
+        }));
+        return false;
+    });
 }
 
 Application::~Application() = default;

@@ -1,8 +1,6 @@
-# Multi threaded GTKmm3 example
+# Multi windowed GTKmm3 example
+Based on the gtkmm-multithread-example. 
 
-This is a minimal base for a multi threaded application. It features a special background thread. Communication between threads is based on client-server structure. Simply saying, we send packets between threads.  
+This example features internal window manager. It provides simple interface to create windows and manages the application lifetime by keeping track of shown & hidden windows.
 
-Gui thread is equated with Application class, Logic thread with Core class.
-
-## Structure
-![Demo](screenshots/structure.png)
+Note that the "windows" in this context are completely independent from each other. They all could be considered by the user as separate applications. This example does not contain any dependent windows (i.e. dialogs).
