@@ -1,8 +1,6 @@
-# Multi threaded GTKmm3 example
+# GTKmm3 examples
 
-This is a minimal base for a multi threaded application. It features a special background thread. Communication between threads is based on client-server structure. Simply saying, we send packets between threads.  
+Each branch contains a single example.
 
-Gui thread is equated with Application class, Logic thread with Core class.
-
-## Structure
-![Demo](screenshots/structure.png)
+[Multi-threaded example](https://github.com/darsto/gtkmm-examples/tree/gtkmm-multithread-example)  
+[Multi-windowed example](https://github.com/darsto/gtkmm-examples/tree/gtkmm-multiwindow-example)
