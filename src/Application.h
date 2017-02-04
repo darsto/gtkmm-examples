@@ -75,7 +75,7 @@ public:
     
     /**
      * Initialize all windows, show them, and enter GTK event loop.
-     * The method will return once main window is closed (not just hidden!)
+     * The method will return once main window is hidden (or closed)
      * @return regular exit status
      */
     int run();
